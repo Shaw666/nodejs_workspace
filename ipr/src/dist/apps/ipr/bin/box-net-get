@@ -1,0 +1,40 @@
+#!/bin/bash
+# {
+#   "net-nameserver"                : ["114.114.114.114", "192.168.1.1", "192.168.88.2"]
+
+#   "net-dhcp"                 : "static",
+#   "net-gateway"              : "192.168.88.2",
+#   "net-ip"                   : "192.168.88.139",
+#   "net-mask"                 : "255.255.255.0",
+
+# [e]  --- eth0      Link encap:Ethernet  HWaddr 00:e0:4c:12:c3:ba
+# [i]  --- inet addr:192.168.1.161  Bcast:192.168.1.255  Mask:255.255.255.0
+# [i]  --- inet6 addr: fe80::2e0:4cff:fe12:c3ba/64 Scope:Link
+# [U]  --- UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+# [R]  --- RX packets:578646 errors:0 dropped:0 overruns:0 frame:0
+# [T]  --- TX packets:269284 errors:0 dropped:0 overruns:0 carrier:0
+# [c]  --- collisions:0 txqueuelen:1000
+# [R]  --- RX bytes:670853719 (670.8 MB)  TX bytes:22505583 (22.5 MB)
+# []  --- 
+
+echo "{"
+iface=eth0
+mode=$(cat /etc/network/$iface | grep '^iface' | awk '{print $4}')
+gw=$(cat /etc/network/$iface | grep '^gateway' | awk '{print $2}')
+ip=$(cat /etc/network/$iface | grep '^address' | awk '{print $2}')
+mask=$(cat /etc/network/$iface | grep '^netmask' | awk '{print $2}')
+echo "  \"net-mode\" : \"$mode\","
+echo "  \"net-gateway\" : \"$gw\","
+echo "  \"net-ip\" : \"$ip\","
+echo "  \"net-mask\" : \"$mask\","
+
+#nameserver
+ns=$(cat /etc/resolvconf/resolv.conf.d/base | awk '{print $2}')
+list=""
+for  ip in $ns;
+do
+    list="\"$ip\" $list"
+done
+list=$(echo $list)
+echo "  \"net-nameserver\" : [${list//\ /, }]"
+echo "}"

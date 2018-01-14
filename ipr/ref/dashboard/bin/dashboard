@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+var debug = require('debug')('dashboard');
+var app = require('../dashboard');
+
+var config = require('/etc/box.json');
+app.set('port', config.server_dashboard_web_port || 80);
+
+var server = app.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});

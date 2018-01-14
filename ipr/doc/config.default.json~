@@ -1,0 +1,20 @@
+        {
+        reciver-number       : 1,
+        panel-event-first    : true,
+        report-online        : true,
+        report-offline       : true,
+        confirm-offline-time : 60,
+        allow-control-device : true,
+        api-key              : "1234",
+        api-allow-set-time   : true,
+        api-allow-rebot      : true,
+        port-web-admin       : 8000,
+        lines : {
+            1 : {
+                enabled  : true,
+                name     : "ipr-2线路",
+                port     : 7101,
+                protocol : "ipr2"
+            }
+        }
+    }

@@ -1,0 +1,8 @@
+
+echo "{"
+echo " \"netinfo\":"
+netinfo
+echo " ,"
+echo " \"config\":"
+cat /etc/box.json
+echo "}"

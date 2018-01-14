@@ -1,0 +1,59 @@
+<div class="body-nav body-nav-horizontal body-nav-fixed">
+  <div class="container">
+    <ul>
+      <li>
+        <a href="/">
+          <i class="icon-dashboard icon-large"></i>运行状态
+        </a>
+      </li>
+      <li>
+        <a href="/set-ipr">
+          <i class="icon-home icon-large"></i>接警机设置
+        </a>
+      </li>
+      <li>
+        <a href="/set-line">
+          <i class="icon-phone icon-large"></i>线路设置
+        </a>
+      </li>
+      <li>
+        <a href="event-log">
+          <i class="icon-exclamation-sign icon-large"></i>报警记录
+        </a>
+      </li>
+      <li>
+        <a href="/set-net">
+          <i class="icon-cogs icon-large"></i>网络设置
+        </a>
+      </li>
+      {{#show_gateway_btn}}
+      <li>
+        <a href="/set-gateway">
+          <i class="icon-inbox icon-large"></i>视频网关设置
+        </a>
+      </li>
+      {{/show_gateway_btn}}
+      <li>
+        <a href="sys-log">
+          <i class="icon-list icon-large"></i>系统日志
+        </a>
+      </li>
+      <li>
+        <a href="set-pwd">
+          <i class="icon-key icon-large"></i>修改密码
+        </a>
+      </li>
+      {{#show_save_btn}}
+      <li>
+        <a><i id="submit-confirm-button" class="icon-ok icon-large"></i>保存修改</a>
+      </li>
+      {{/show_save_btn}}
+      {{#show_export_btn}}
+      <li>
+        <a><i id="export-button" class="icon-download-alt icon-large"></i>导出</a>
+      </li>
+      {{/show_export_btn}}
+    </ul>
+  </div>
+</div>
+

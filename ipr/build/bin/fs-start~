@@ -1,0 +1,7 @@
+#!/bin/sh
+. /etc/cwcdn.conf
+while true
+do
+    dashboard
+    sleep 1
+done

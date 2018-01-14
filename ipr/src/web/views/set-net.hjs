@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  {{> header}}
+  <body>
+    {{> page_header}}
+    <div id="body-container">
+      <div id="body-content">
+        {{> nav}}
+        <section class="page container">
+          <form class="form-horizontal">
+            <div class="row">
+              <div id="net-settings-row" class="span7">
+                  <fieldset>
+                    <legend>网络设置</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址获取方式 </label>
+                      <div class="controls">
+                        <select id="net-mode" class="span2">
+                          <option value="dhcp">   自动获取     </option>
+                          <option value="static"> 手动设置 </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址 </label>
+                      <div class="controls">
+                        <input id="net-ip" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网络掩码</label>
+                      <div class="controls">
+                        <input id="net-mask" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网关</label>
+                      <div class="controls">
+                        <input id="net-gateway" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">域名服务器</label>
+                      <div class="controls">
+                        <input id="net-nameserver" name="net-nameserver" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div id="stat" class="span7">
+                  <fieldset>
+                    <legend>当前网络状态</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">网线已连接 </label>
+                      <div class="controls">
+                        <input id="stat-running" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址获取方式 </label>
+                      <div class="controls">
+                        <input id="stat-mode" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址 </label>
+                      <div class="controls">
+                        <input id="stat-ip" name="net-ip" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网络掩码</label>
+                      <div class="controls">
+                        <input id="stat-mask" name="net-mask" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网关</label>
+                      <div class="controls">
+                        <input id="stat-gateway" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">MAC地址</label>
+                      <div class="controls">
+                        <input id="stat-mac" name="net-mac" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">已接收数据</label>
+                      <div class="controls">
+                        <input id="stat-rx" name="net-rx" class="span2" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">已发送数据</label>
+                      <div class="controls">
+                        <input id="stat-tx" name="net-tx" class="span2" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+	
+      </div>
+    </div>
+
+    <footer class="application-footer">
+      <div class="container">
+        <p> <img src="images/conwin.png"/></P>
+        <div class="disclaimer">
+          <p>All right reserved.</p>
+          <p>Copyright © conwin 1993-2015</p>
+        </div>
+      </div>
+    </footer>
+    <script type="text/javascript">
+      $(function(){
+          var server_data = {};
+          function on_exit(e) {
+              var e = e || window.event;
+              // For IE and Firefox prior to version 4
+              if (e) {
+                  e.returnValue = '数据已修改';
+              }
+              // For Safari
+              return '数据已修改';
+          };
+          function on_data_changed() {
+              window.onbeforeunload = on_exit;
+          };
+          function is_valid_ip(ip) {
+              if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) { return false; };
+              var arr = ip.split(".");
+              for (var i = 0; i < arr.length; i++) {
+                  if (parseInt(arr[i]) > 255) { return false; };
+              }
+              return true;
+          }
+          function validate_data(net) {
+              var err = [];
+              if (['dhcp', 'static'].indexOf(net["net-mode"]) < 0) {err.push("IP获取方式错误"); };
+              if (net.mode === "static") {
+                  if (!is_valid_ip(net.ip)) { err.push("IP地址格式错误"); }
+                  if (!is_valid_ip(net.gw)) { err.push("网关地址格式错误"); }
+                  if (!is_valid_ip(net.mask)) { err.push("网络掩码格式错误"); }
+              };
+              var dns = net["net-nameserver"].split(",");
+              for (var i = 0; i < dns.length; i++) {
+                  if (dns[i].trim() === "") { continue; };
+                  if (!is_valid_ip(dns[i])) { err.push("dns: " + dns[i] + "格式错误"); };
+              }
+              return err;
+          };
+          function on_net_mode_change(mode) {
+              on_data_changed();
+              if (mode === "static") {
+                  $("#net-ip").val(server_data.ip).attr("readonly", false).attr("disabled", null);
+                  $("#net-mask").val(server_data.mask).attr("readonly", false).attr("disabled", null);
+                  $("#net-gateway").val(server_data.gw).attr("readonly", false).attr("disabled", null);
+              } else if (mode === "dhcp") {
+                  server_data.ip   = $("#netip").val()
+                  server_data.mask = $("#netmask").val();
+                  server_data.gw   = $("#netgateway").val();
+                  $("#net-ip").val("自动获取").attr("readonly", true).attr("disabled", null);
+                  $("#net-mask").val("自动获取").attr("readonly", true).attr("disabled", null);
+                  $("#net-gateway").val("自动获取").attr("readonly", true).attr("disabled", null);
+              }
+          }
+          $("#net-mode").change(function () {
+              var mode = $(this).val();
+              on_net_mode_change(mode);
+          });
+          $("#submit-confirm-button").click(function () {
+              /*
+                {
+                "net-mode"                 : "static",
+                "net-gateway"              : "192.168.88.2",
+                "net-ip"                   : "192.168.88.139",
+                "net-mask"                 : "255.255.255.0",
+                "net-nameserver"                : ["8.8.8.8", "114.114.114.114"]
+                }
+               */
+              var net = {};
+              net["net-route-default-gateway"     ] = $("#net-route-default-gateway"     ).val();
+              net["net-route-default-gateway-dev" ] = $("#net-route-default-gateway-dev" ).val();
+              net["net-active"               ] = $("#net-active"               ).val();
+              net["net-mode"                 ] = $("#net-mode"                 ).val();
+              if (net["net-mode"] == "static") {
+                  net["net-gateway"              ] = $("#net-gateway"              ).val();
+                  net["net-ip"                   ] = $("#net-ip"                   ).val();
+                  net["net-mask"                 ] = $("#net-mask"                 ).val();
+              } else {
+                  net["net-gateway"              ] = server_data.gw;
+                  net["net-ip"                   ] = server_data.ip;
+                  net["net-mask"                 ] = server_data.mask;
+              }
+              net["net-nameserver"                ] = $("#net-nameserver"                ).val();
+
+              var err = [];
+              err = validate_data(net);
+              if (err.length > 0) {
+                  alert("数据错误 : \n" + err.join("\n"));
+                  return false;
+              }
+              var s = JSON.stringify(net);
+              if (!confirm("确认保存?")) { return false; };
+              $.getJSON("/api/set-net?data=" + s)
+                  .done(function (data) {
+                      if (data.result == "OK") {
+                          alert("配置保存成功.");
+                          window.onbeforeunload = null;
+                      } else {
+                          alert("配置保存失败:" + JSON.stringify(data));
+                          return false;
+                      }
+                  })
+                  .fail(function(textStatus, jqXHR, error ) {
+                      alert("数据保存失败, 请重新保存.");
+                  });
+              return true;
+          });
+          function update_net_settings() {
+              var prefix = "#net-";
+              var mode = $(prefix + "mode").attr("value");
+              if (mode === "dhcp") {
+                  value = "true";
+              } else {
+                  value = null;
+              };
+              ["ip", "mask", "gateway"].forEach(function (field) {
+                  $(prefix + field).attr("disabled", value);
+                  if (mode === "dhcp") {
+                      $(prefix + field).val("自动获取");
+                  } else {
+                      $(prefix + field).val(server_data[field]);
+                  }
+              });
+          }
+
+          $.getJSON("/api/get-net-settings", function (json) {
+              var active_eth_cnt = 0
+              var field;
+              for (field in json) {
+                  if (json.hasOwnProperty(field)) {
+                      var value = json[field];
+                      $("#" + field).attr("value", value);
+                  }
+              }
+
+              server_data = {};
+              server_data.gateway = json["net-gateway"];
+              server_data.ip      = json["net-ip"];
+              server_data.mask    = json["net-mask"];
+              $("#net-mode").on('change', update_net_settings);
+              update_net_settings();
+
+          });
+          function update_net_stat() {
+              $.getJSON("/api/get-net-stat")
+                  .done(function (data) {
+                      var mode_name = {
+                          "dhcp"   : "自动获取",
+                          "static" : "手动设置"
+                      }
+                      $("#stat-mode").val(mode_name[data.mode]);
+                      var field, value;
+                      for (field in data) {
+                          if (data.hasOwnProperty(field)) {
+                              value = data[field];
+                              if (typeof value === "boolean") {
+                                  if (value) {
+                                      value = "是";
+                                  } else {
+                                      value = "否";
+                                  }
+                              }
+                              $("#" + field).val(value);
+                          }
+                      }
+                      setTimeout(update_net_stat, 5000);
+                  })
+                  .fail(function(textStatus, jqXHR, error ) {
+                      setTimeout(update_net_stat, 5000);
+                  });
+          };
+          update_net_stat();
+
+      });
+    </script>
+    
+  </body>
+</html>

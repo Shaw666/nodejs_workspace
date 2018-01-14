@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{> header}}
+  <body>
+    {{> page_header}}
+    <div id="body-container">
+      <div id="body-content">
+        {{> nav}}
+        <section class="page container">
+          <form class="form-horizontal">
+            <div class="container">
+              <div class="row">
+                <div id="db-settings-row" class="span7">
+                  <fieldset>
+                    <legend>数据库参数</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">数据库类型</label>
+                      <div class="controls">
+                        <select id="db-type" name="db-type" class="span2">
+                          <option value="mssql"> 微软MSSQL </option>
+                          <option value="mysql"> MYSQL </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">数据库服务器IP地址 </label>
+                      <div class="controls">
+                        <input id="db-server-ip" name="db-server-ip" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">数据库端口(0=默认端口) </label>
+                      <div class="controls">
+                        <input id="db-server-port" type="number"  class="span4"  autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">用户名</label>
+                      <div class="controls">
+                        <input id="db-username" name="db-username" class="span4" value="" autocomplete="false"/>
+
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">密码</label>
+                      <div class="controls">
+                        <input id="db-password" name="db-password" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">数据库</label>
+                      <div class="controls">
+                        <input id="db-database" name="db-database" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div id="server-settings-row" class="span7">
+                  <fieldset>
+                    <legend>服务器参数</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">允许未注册设备自动注册 </label>
+                      <div class="controls">
+                        <input id="server-allow-autoreg" name="server-allow-autoreg" type="checkbox" class="switch span4" />
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">允许用户自行修改资料 </label>
+                      <div class="controls">
+                        <input id="server-allow-user-modify" name="server-allow-user-modify" type="checkbox" class="switch span4" />
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">允许通过API设置时间 </label>
+                      <div class="controls">
+                        <input id="server-allow-api-timesync" name="server-allow-api-timesync" type="checkbox" class="switch span4" />
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">允许API重启服务器 </label>
+                      <div class="controls">
+                        <input id="server-allow-api-reboot" name="server-allow-api-reboot" type="checkbox" class="switch span4" />
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">API访问密码 </label>
+                      <div class="controls">
+                        <input id="server-api-key" name="server-api-key" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">管理界面端口 </label>
+                      <div class="controls">
+                        <input id="server-dashboard-web-port" type="number" class="span4"  autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">断线认定时间(秒) </label>
+                      <div class="controls">
+                        <input id="offline-time" type="number" class="span4"  autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">保留最近多少天消息(0=不自动删除) </label>
+                      <div class="controls">
+                        <input id="message-limit-cnt" type="number" class="span4" autocomplete="false"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div id="server-settings-row" class="span7">
+                  <fieldset>
+                    <legend>反向接入设置</legend><br/>
+                    
+                    <div class="box  pattern-sandstone span7">
+                      <div class="box-header">
+                        <i class="icon-table"></i>
+                        <h5>设备列表</h5>
+                      </div>
+                      <div class="box-content box-table">
+                        <table class="table table-striped table-hover table-bordered tablesorter">
+                          <thead>
+                            <tr>
+                              <th class="center span1"></th>
+                              <th class="center span1">TID</th>
+                              <th class="center span1">是否启用</th>
+                              <th class="center span2">IP</th>
+                              <th class="center span1">端口</th>
+                            </tr>
+                          </thead>
+                          <tbody id="child-list">
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">TID </label>
+                      <div class="controls">
+                        <input id="new-child-tid" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP </label>
+                      <div class="controls">
+                        <input id="new-child-host" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">端口 </label>
+                      <div class="controls">
+                        <input id="new-child-port" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <div class="controls">
+                        <button id="btn-add-child" class="center btn" name="add-child">
+                          <span class="icon-plus">
+                          </span>
+                          增加新接入服务器
+                        </button>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+	
+      </div>
+    </div>
+    {{> footer}}
+    <script src="../js/bootstrap/bootstrap-switch.js" type="text/javascript" ></script>
+    <script type="text/javascript">
+      $(function(){
+          $.fn.bootstrapSwitch.defaults.size = 'small';
+          $(".switch").bootstrapSwitch();
+          $("#submit-confirm-button").click(function () {
+              server_data["server_api_key"]            = $("#server-api-key").val();
+              server_data["server_dashboard_web_port"] = parseInt($("#server-dashboard-web-port").val(), 10);
+              server_data["offline_time"]              = parseInt($("#offline-time").val(), 10);
+              server_data["message_limit_cnt"]         = parseInt($("#message-limit-cnt").val(), 10);
+              server_data.db["type"]                   = $("#db-type").val();
+              server_data.db["server"]                 = $("#db-server-ip").val();
+              server_data.db["port"]                   = parseInt($("#db-server-port").val());
+              server_data.db["user"]                   = $("#db-username").val();
+              server_data.db["password"]               = $("#db-password").val();
+              server_data.db["database"]               = $("#db-database").val();
+              server_data["server_allow_autoreg"]      = $("#server-allow-autoreg").bootstrapSwitch('state');
+              server_data["server_allow_user_modify"]  = $("#server-allow-user-modify").bootstrapSwitch('state');
+              server_data["server_allow_api_timesync"] = $("#server-allow-api-timesync").bootstrapSwitch('state');
+              server_data["server_allow_api_reboot"]   = $("#server-allow-api-reboot").bootstrapSwitch('state');
+              var err = [];
+              if (err.length > 0) {
+                  alert("数据错误 : \n" + err.join("\n"));
+                  return false;
+              }
+              var s = JSON.stringify(server_data);
+              if (!confirm("确认保存?")) { return; };
+              $.getJSON("/jnode-set?data=" + s)
+                  .done(function (data) {
+                      if (data.result == "OK") {
+                          window.onbeforeunload = null;
+                          alert("配置保存成功.");
+                      } else {
+                          alert("配置保存失败:" + JSON.stringify(data));
+                          return false;
+                      }
+                  })
+                  .fail(function(textStatus, jqXHR, error ) {
+                      alert("数据保存失败, 请重新保存.");
+                  });
+              return true;
+          });
+          function on_exit(e) {
+              var e = e || window.event;
+              // For IE and Firefox prior to version 4
+              if (e) {
+                  e.returnValue = '数据已修改';
+              }
+              // For Safari
+              return '数据已修改';
+          };
+          var updating = false;
+          function on_data_changed() {
+              if (updating) { return; };
+              window.onbeforeunload = on_exit;
+          };
+          function add_new_child() {
+              var tid  = $("#new-child-tid").val()
+              var host = $("#new-child-host").val()
+              var port = $("#new-child-port").val()
+              tid = tid.toUpperCase();
+              if (!/^[a-zA-Z]{4}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{2}-[0-9a-zA-Z]{3}$/.test(tid)) {
+                  alert(tid + ": TID格式错误.")
+                  $("#new-child-number").focus();
+                  return false;
+              }
+              if (children[tid]) {
+                  alert(tid + "已经存在.")
+                  $("#new-child-number").focus();
+                  return false;
+              }
+              on_data_changed();
+              var child = {
+                  tid     : tid,
+                  enabled : true,
+                  host    : host,
+                  port    : port
+              }
+              children[tid] = child;
+              var list = $("#child-list");
+              var row = $("<tr>").attr("id", "row-" + tid);
+              var col = $("<td>")
+                  .addClass("center")
+                  .attr("id", "col-oper")
+                  .appendTo(row);
+              $("<button>")
+                  .addClass("btn")
+                  .append($("<span>").addClass("icon-remove"))
+                  .click(on_child_del)
+                  .data({tid:tid, child: child})
+                  .appendTo(col);
+
+              col.appendTo(row);
+
+              $("<td>").attr("id", "col-tid")
+                  .addClass("center")
+                  .addClass("span2")
+                  .append(tid)
+                  .appendTo(row);
+
+              col = $("<td>").attr("id", "col-enabled")
+                  .addClass("center").appendTo(row);
+
+
+              var enabled = $("<input>")
+                  .attr("type", "checkbox")
+                  .addClass("switch")
+                  .data({tid:tid, child: child})
+                  .addClass("span4")
+                  .on('switchChange.bootstrapSwitch',
+                      on_child_enabled_changed)
+              
+              if (child.enabled) {
+                  enabled.attr("checked", "true");
+              }
+              enabled.appendTo(col);
+
+              col = $("<td>").appendTo(row).append(child.host);
+              col = $("<td>").appendTo(row).append(child.port);
+
+              row.appendTo(list);
+              $(".switch").bootstrapSwitch();
+              return false;
+          };
+
+          function on_child_enabled_changed() {
+              var data = $(this).data()
+              var tid = data.tid;
+              var child = children[tid];
+              var new_value;
+              if ($(this).attr("checked")) {
+                  new_value = true
+              } else {
+                  new_value = false;
+              }
+              if (child.enabled != new_value) {
+                  on_data_changed();
+                  child.enabled = new_value
+                  $(".switch").bootstrapSwitch();
+              }
+          }
+          function on_child_del() {
+              var tid = $(this).data().tid;
+              var part = children[tid];
+              if (confirm("确定要删除设备:" + tid + "吗?")) {
+                  on_data_changed();
+                  delete children[tid];
+                  $("#row-" + tid).remove();
+              };
+              return false;
+          }
+
+          function update_children_list(children) {
+              var list = $("#child-list");
+              list.empty();
+              for (var tid in children) {
+                  var child = children[tid];
+                  var row = $("<tr>").attr("id", "row-" + tid);
+                  var col = $("<td>")
+                      .addClass("center")
+                      .attr("id", "col-oper")
+                      .appendTo(row);
+                  $("<button>")
+                      .addClass("btn")
+                      .append($("<span>").addClass("icon-remove"))
+                      .click(on_child_del)
+                      .data({tid:tid, child: child})
+                      .appendTo(col);
+
+                  col.appendTo(row);
+
+                  $("<td>").attr("id", "col-tid")
+                      .addClass("center")
+                      .addClass("span3")
+                      .append(tid)
+                      .appendTo(row);
+
+                  col = $("<td>").attr("id", "col-enabled")
+                      .addClass("center").appendTo(row);
+
+
+                  var enabled = $("<input>")
+                      .attr("type", "checkbox")
+                      .addClass("switch")
+                      .data({tid:tid, child: child})
+                      .addClass("span4")
+                      .on('switchChange.bootstrapSwitch',
+                          on_child_enabled_changed)
+                  
+                  if (child.enabled) {
+                      enabled.attr("checked", "true");
+                  }
+                  enabled.appendTo(col);
+
+                  col = $("<td>").appendTo(row).append(child.host);
+                  col = $("<td>").appendTo(row).append(child.port);
+                  row.appendTo(list);
+              }
+              $(".switch").bootstrapSwitch();
+          }
+
+          $("#btn-add-child").click(add_new_child);
+          var server_data;
+          var children;
+          $.getJSON("/jnode-get", function (json) {
+              server_data = json;
+              if (!json["children-to-connect"]
+                  || !json["children-to-connect"]["children-list"]) {
+                  json["children-to-connect"] = {
+                      "children-list" : {
+                      }
+                  };
+              }
+              children    = json["children-to-connect"]["children-list"];
+              $("#server-api-key").attr("value", json["server_api_key"]);
+              $("#server-dashboard-web-port").attr("value", json.server_dashboard_web_port);
+              $("#offline-time").attr("value", json.offline_time);
+              $("#message-limit-cnt").attr("value", json.message_limit_cnt);
+              $("#db-type").val(json.db.type);
+              $("#db-server-ip").attr("value", json.db.server);
+              $("#db-server-port").attr("value", json.db.port);
+              $("#db-username").attr("value", json.db.user);
+              $("#db-password").attr("value", json.db.password);
+              $("#db-database").attr("value", json.db.database);
+              if (json["server_allow_autoreg"]) {
+                  $("#server-allow-autoreg").bootstrapSwitch('state', true, true);
+              }
+              if (json["server_allow_user_modify"]) {
+                  $("#server-allow-user-modify").bootstrapSwitch('state', true, true);
+              }
+              if (json["server_allow_api_timesync"]) {
+                  $("#server-allow-api-timesync").bootstrapSwitch('state', true, true);
+              }
+              if (json["server_allow_api_reboot"]) {
+                  $("#server-allow-api-reboot").bootstrapSwitch('state', true, true);
+              }
+              update_children_list(children);
+          });
+      });
+    </script>
+    
+  </body>
+</html>

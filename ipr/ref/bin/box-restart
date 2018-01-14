@@ -1,0 +1,4 @@
+#!/bin/sh
+kill $(ps -e -f | grep " /usr/bin/box " | grep -v grep | cut -f 7 -d " ")
+# box  >> /var/log/box.log &
+

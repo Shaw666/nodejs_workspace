@@ -1,0 +1,84 @@
+
+#!/bin/bash
+#!/bin/bash
+# {
+#   "stat-nameserver"                : ["114.114.114.114", "192.168.1.1", "192.168.88.2"]
+
+#   "stat-dhcp"                 : "static",
+#   "stat-gateway"              : "192.168.88.2",
+#   "stat-mac"                  : "00:50:56:27:ba:a8",
+#   "stat-ip"                   : "192.168.88.139",
+#   "stat-mask"                 : "255.255.255.0",
+#   "stat-running"              : true,
+#   "stat-rx"                   : "2.7 GB",
+#   "stat-tx"                   : "1.1 GB",
+# }
+# [e]  --- eth0      Link encap:Ethernet  HWaddr 00:e0:4c:12:c3:ba
+# [i]  --- inet addr:192.168.1.161  Bcast:192.168.1.255  Mask:255.255.255.0
+# [i]  --- inet6 addr: fe80::2e0:4cff:fe12:c3ba/64 Scope:Link
+# [U]  --- UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+# [R]  --- RX packets:578646 errors:0 dropped:0 overruns:0 frame:0
+# [T]  --- TX packets:269284 errors:0 dropped:0 overruns:0 carrier:0
+# [c]  --- collisions:0 txqueuelen:1000
+# [R]  --- RX bytes:670853719 (670.8 MB)  TX bytes:22505583 (22.5 MB)
+# []  --- 
+
+
+iface=eth0
+echo "{"
+
+if [ -f "/var/lib/dhcp/dhclient.$iface.leases" ]; then
+    mode="dhcp"
+else
+    mode="static"
+fi
+echo "  \"stat-mode\" : \"$mode\","
+gw=$(route -n | awk '/^0.0.0.0/{print $2}')
+echo "  \"stat-gateway\" : \"$gw\","
+ifconfig $iface | awk -v iface=$iface '
+BEGIN{
+    ip = "";
+   mac = "";
+  mask = "";
+active = "false";
+running = "false";
+    rx = "0";
+    tx = "0";
+}
+END{
+    printf("  \"stat-running\" : %s,\n", running);
+    printf("  \"stat-ip\" : \"%s\",\n", ip);
+    printf("  \"stat-mask\" : \"%s\",\n", mask);
+    printf("  \"stat-mac\" : \"%s\",\n", mac);
+    printf("  \"stat-rx\" : \"%s\",\n", rx);
+    printf("  \"stat-tx\" : \"%s\",\n", tx);
+}
+NR==1{
+    mac = $5;
+}
+/ *inet /{
+    i = index($2, ":"); ip = substr($2, i + 1);
+    i = index($4, ":"); mask = substr($4, i + 1);
+}
+/ UP /{
+    active = "true"
+}
+/ RUNNING /{
+    running = "true"
+}
+/ *RX /{
+    split($0, a, "[()]");
+    rx = a[2];
+    tx = a[4];
+}
+'
+#nameserver
+ns=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
+list=""
+for  ip in $ns;
+do
+    list="\"$ip\" $list"
+done
+list=$(echo $list)
+echo "  \"stat-nameserver\" : [${list//\ /, }]"
+echo "}"

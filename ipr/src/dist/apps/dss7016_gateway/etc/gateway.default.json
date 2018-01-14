@@ -1,0 +1,11 @@
+{
+    "gateway-enabled"     : false,
+    "dss7016-lan-ip"      : "192.168.1.100",
+    "dss7016-wan-ip"      : "192.168.1.100",
+    "dss7016-server-port" : 9000,
+    "dss7016-username"    : "system",
+    "dss7016-password"    : "123456",
+    "things-server-ip"    : "192.168.1.110",
+    "things-server-port"  : 8008,
+    "tid"                 : ""
+}

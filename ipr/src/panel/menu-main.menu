@@ -1,0 +1,8 @@
+System status;do-sys-status.sh
+System information;do-sys-info.sh
+Line information;do-line-info.sh
+Browser event log;do-browse-event-log.sh
+Reset net settings;do-reset-net-settings.sh
+Reset web port/password;do-reset-web-access.sh
+Reboot;do-reboot.sh
+Power off;do-poweroff.sh

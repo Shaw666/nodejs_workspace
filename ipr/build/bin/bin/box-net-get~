@@ -1,0 +1,4 @@
+#!/bin/bash
+cat /etc/network/eth0
+
+cat /etc/network/eth1

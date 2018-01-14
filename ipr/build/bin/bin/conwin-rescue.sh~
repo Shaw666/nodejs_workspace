@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+print_menu() {
+    echo "丛文警云CN8000 系统恢复工作台"
+    echo "1 - 显示设备信息"
+    echo "2 - 恢复出厂设置"
+    echo "0 - 重启系统"
+    echo ""
+}
+
+print_menu
+
+while read -p "请选择:[1]" line; do
+    [ "$line" == "" ] && line=1
+    case $line in
+        0)
+            sudo reboot
+            ;;
+        1)
+            echo 
+            echo "===========    网卡配置信息  ==============="
+            ifconfig
+            echo 
+            echo "===========    路由配置信息  ==============="
+            route
+            echo 
+            echo "===========    域名解析配置信息  ==============="
+            cat /etc/resolv.conf | grep "^nameserver"
+            ;;
+        2)
+            echo "恢复出厂设置"
+            ;;
+        *)
+            ;;
+    esac
+    print_menu
+done
+

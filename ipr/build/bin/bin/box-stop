@@ -1,0 +1,12 @@
+#!/bin/bash
+for cmd in '/usr/bin/dashboard-start' '/usr/bin/dashboard' '/usr/bin/box-start' '/usr/bin/box' '/usr/bin/fs-start' '/usr/bin/fs'; do
+    pid=$(ps -ef | grep "$cmd" | grep -v "grep" | awk '{print $2}');
+    echo -e "[$cmd] : \c"
+    if [ "$pid" = "" ]; then
+        echo "not found"
+    else
+        echo "($pid) killed"
+        echo $pid | sudo xargs kill
+    fi
+done
+

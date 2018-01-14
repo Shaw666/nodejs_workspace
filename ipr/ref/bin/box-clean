@@ -1,0 +1,22 @@
+#!/bin/bash
+
+eval $(json -f /etc/box.json .server_fs_root/ftproot)
+echo ftproot=$ftproot
+[ -d $ftproot ] && rm -rf $ftproot
+
+sudo rm -rf /usr/lib/box 
+sudo userdel conwin
+
+sudo rm /usr/bin/dashboard
+sudo rm /usr/bin/box
+sudo rm /usr/bin/fs
+
+sudo rm /usr/bin/udp_boxinfo
+sudo rm /usr/bin/boxinfo
+sudo rm /usr/bin/boxset
+sudo rm /usr/bin/box-start
+sudo rm /usr/bin/box-restart
+sudo rm /usr/bin/netinfo
+sudo rm /usr/bin/start.sh
+
+

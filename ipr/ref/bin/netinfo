@@ -1,0 +1,101 @@
+#!/bin/bash
+# {
+#    "nameserver" : [<ns>,<ns>...],
+#    "interface"  : {
+#          "ethX" : {
+#               "state"	  : "on" | "off",
+#               "dhcp"	  : "on" | "off",
+#               "ip"	  : "<ip>",
+#               "mask"	  : "<netmask>",
+#               "gateway" : "<gateway>",
+#               "gwmask"  : "<gateway mask>"
+#          }
+#    }
+
+# [e]  --- eth0      Link encap:Ethernet  HWaddr 00:e0:4c:12:c3:ba
+# [i]  --- inet addr:192.168.1.161  Bcast:192.168.1.255  Mask:255.255.255.0
+# [i]  --- inet6 addr: fe80::2e0:4cff:fe12:c3ba/64 Scope:Link
+# [U]  --- UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+# [R]  --- RX packets:578646 errors:0 dropped:0 overruns:0 frame:0
+# [T]  --- TX packets:269284 errors:0 dropped:0 overruns:0 carrier:0
+# [c]  --- collisions:0 txqueuelen:1000
+# [R]  --- RX bytes:670853719 (670.8 MB)  TX bytes:22505583 (22.5 MB)
+# []  --- 
+
+iface=""
+set ifaces=""
+cnt=0
+echo "{"
+echo "  \"net-dev-cnt\" : $(ifconfig -a | grep "eth" | wc -l),"
+
+#gateway
+gw=$(route -n | awk '{ if ($1 == "0.0.0.0" ) {printf $2", "}}')
+gw=${gw%%", "}
+defaultgw=$gw
+echo "  \"net-route-default-gateway\" : \"$gw\","
+gw=$(route -n | awk '{ if ($1 == "0.0.0.0") {printf $8", "}}')
+gw=${gw%%", "}
+echo "  \"net-route-default-gateway-dev\" : \"$gw\","
+
+ifconfig -a |
+{
+    while read line
+    do
+	[ "$line" = "" ] && iface=""  && continue
+	if [ "${line:0:3}" = "eth" ]; then
+	    iface=$(echo $line | awk '{print $1}')
+	    # echo "$iface=1"
+	    cnt=$(expr $cnt + 1)
+	    echo "  \"net-$iface-dhcp\" : \"$(cat /etc/network/$iface | grep '^iface' | awk '{print $4}')\","
+	    gw=$(route -n | awk -v eth=$iface '{ if ($1 != "0.0.0.0" && $8 == eth) {print $2}}')
+        [ "$gw" = "0.0.0.0" ] && gw="$defaultgw"
+	    echo "  \"net-$iface-gateway\" : \"$gw\","
+	    # gw=$(route -n | awk -v eth=$iface '{ if ($1 != "0.0.0.0" && $8 == eth) {print $1}}')
+	    # echo "  \"net-$iface-gateway-dest\" : \"$gw\","
+	    # gw=$(route -n | awk -v eth=$iface '{ if ($1 != "0.0.0.0" && $8 == eth) {print $3}}')
+	    # echo "  \"net-$iface-gateway-mask\" : \"$gw\","
+	fi
+	[ "$iface" = "" ] && continue
+	# line[1] = eth0      Link encap:Ethernet  HWaddr 00:e0:4c:12:c3:ba
+	if [[ $line == eth* ]]; then  # get mac
+	    echo "  \"net-$iface-mac\" : \"$(echo $line | awk '{print $5}')\","
+	fi
+	# line[2] = inet addr:192.168.1.161  Bcast:192.168.1.255  Mask:255.255.255.0
+	if [[ $line == inet\ addr* ]]; then  # get ipaddr & mask
+	    echo "  \"net-$iface-ip\" : \"$(echo $line | awk -F [\ :] '{print $3}')\","
+	    echo "  \"net-$iface-mask\" : \"$(echo $line | awk -F [\ :] '{print $7}')\","
+	fi
+	# line[4] = UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+	if [[ $line == *MTU* ]]; then  # get net card status
+	    if [[ $line == *UP* ]]; then
+		echo "  \"net-$iface-active\" : true,"
+	    else
+		echo "  \"net-$iface-active\" : false,"
+	    fi
+	    if [[ $line == *RUNNING* ]]; then
+		echo "  \"net-$iface-running\" : true,"
+	    else
+		echo "  \"net-$iface-running\" : false,"
+	    fi
+
+	fi
+	# line[8] = RX bytes:671153689 (671.1 MB)  TX bytes:22894253 (22.8 MB)
+	if [[ $line == RX\ bytes* ]]; then  # get tx/rx data counter
+	    echo "  \"net-$iface-rx\" : \"$(echo $line | awk -F [\(\)] '{print $2}')\","
+	    echo "  \"net-$iface-tx\" : \"$(echo $line | awk -F [\(\)] '{print $4}')\","
+	fi
+    done
+    # echo "INTERFACE=$(echo $ifaces)"
+}
+
+
+#nameserver
+ns=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
+list=""
+for  ip in $ns;
+do
+    list="\"$ip\" $list"
+done
+list=$(echo $list)
+echo "  \"net-nameserver\" : [${list//\ /, }]"
+echo "}"

@@ -1,0 +1,4 @@
+#!/bin/sh
+kill $(pidof dhclient3)
+ifdown -a --force  && ifup -a --force
+resolvconf -u

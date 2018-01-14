@@ -1,0 +1,24 @@
+{
+    "reciver-number"       : 9,
+    "serial-format"        : "conwin",
+    "serial-baud"          : 38400,
+    "panel-event-first"    : true,
+    "report-online-offline": true,
+    "log-online-offline"   : true,
+    "confirm-offline-time" : 60,
+    "allow-control-device" : true,
+    "api-key"              : "1234",
+    "api-allow-set-time"   : true,
+    "api-allow-reboot"     : true,
+    "web-port"             : 8000,
+    "web-pass"             : "admin",
+    "tcp-lines" : {
+        "1" : {
+            "enabled"  : true,
+            "name"     : "ipr-2线路",
+            "prefix"   : "",
+            "port"     : 7101,
+            "protocol" : "ipr-2"
+        }
+    }
+}

@@ -1,0 +1,84 @@
+#!/bin/bash
+all:
+	[ "$(which cleancss)"     = "" ] && sudo npm install clean-css -g
+	[ "$(which uglifyjs)"      = "" ] && sudo npm install uglifyjs -g
+	[ "$(which html-minifier)" = "" ] && sudo npm install html-minifier -g
+	[ "$(which gzip)"          = "" ] && sudo apt-get install gzip
+
+	[ -d "build" ] && rm -rf build
+	mkdir build
+	mkdir build/www
+	while read file
+	do
+	ext=$(echo $file | sed "s/.*\.\(.*\)$/\1/")
+	type=$(cat fs/mime.xref | grep "\.$ext " | awk '{print $2}')
+	[ "$type" = "" ] && type="application/octet-stream"
+	[ ! -f $file ] && continue
+	[ "$file" = "" ] && continue
+	path=${file#fs/www}
+	fs_total=$(expr $fs_total + 1)
+	hfile="${file//\//_}.h"
+	var=$(echo ${file//\//_} | tr A-Z a-z)
+	var=${var//\./_}
+	var=${var//-/_}
+	hdef=$(echo $hfile | tr a-z A-Z)
+	hdef=${hdef//\./_}
+	hdef=${hdef//-/_}
+	working_file="fs/working.tmp~"
+	case $ext in
+	xxhtml)
+	cat $file | html-minifier \
+	--collapse-whitespace \
+	--minify-js --minify-css \
+--remove-comments \
+--remove-comments-from-cdata \
+--remove-cdatasections-from-cdata \
+--collapse-boolean-attributes \
+--remove-attribute-quotes \
+--remove-redundant-attributes \
+--use-short-doctype \
+--remove-empty-attributes \
+--remove-script-type-attributes \
+--remove-style-link-type-attributes \
+--remove-optional-tags \
+--remove-ignored --minify-urls  > $working_file
+;;
+xxjs)
+cat $file | uglifyjs > $working_file
+;;
+xxcss)
+cat $file | cleancss --s0 > $working_file
+;;
+*)
+cp -f $file $working_file
+esac
+gzip -n $working_file
+working_file="$working_file.gz"
+size=$(stat -c %s $working_file)
+size_total=$(expr $size_total + $size)
+printf "processing [%8d] %s ...\n"  $size $file
+# echo ".h = $hdef  ext = $ext content type = $type  size = $size"
+echo "#include \"include/$hfile\"" >> fs/fs_files.h
+echo "    {\"$path\",  \"$type\", $size, true, $var}," >> fs/fs_data.h
+echo "#ifndef $hdef
+#define $hdef
+
+const char $var[$size] = {"  > fs/include/$hfile
+cat $working_file | hexdump -v -e '8/1 "0x%02X, " "\n"' |  sed 's/0x  , *//g'  >> fs/include/$hfile
+rm $working_file
+echo "
+};
+
+#endif
+" >> fs/include/$hfile
+# cat $file | hexdump -v -e '8/1 "0x%02X, " "\n"' |  sed 's/0x  , *//g'
+done <<< "$(find fs/www | grep -v ".*~")"
+
+
+echo "};
+
+#define FS_FILE_MAX $fs_total
+
+#endif " >> fs/fs_data.h
+
+echo "final size : $size_total"

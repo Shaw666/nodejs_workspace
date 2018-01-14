@@ -1,0 +1,10 @@
+#!/bin/sh
+. /etc/cwcdn.conf
+while true
+do
+    box
+    sleep 1
+    if [ $? -eq 8 ]; then
+        echo "data changed restart"
+    fi
+done

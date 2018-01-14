@@ -1,0 +1,112 @@
+#!/bin/bash
+
+
+print_menu() {
+    echo "CONWIN CN8000 RESCUE CONSOLE"
+    echo ""
+    echo "1 - Display jnode information"
+    echo "2 - Display system information"
+    echo "3 - Ping baidu.com 10 times"
+    echo "4 - Set eth0 to dhcp and disable eth1"
+    echo "5 - Set eth0 to 192.168.1.110 and disable eth1"
+    echo "6 - Set eth0 to 10.0.0.110 and disable eth1"
+    echo "7 - restore cn8000 to factory settings"
+    echo "9 - Reboot..."
+    echo "0 - Exit"
+    echo ""
+}
+
+print_menu
+
+while read -p "Select:[1]" line; do
+    [ "$line" == "" ] && line=1
+    case $line in
+        0)
+            exit 
+            ;;
+        1)
+            echo 
+            echo "=============    CN8000 INFORMATION      ================="
+            echo "  TID            : $(cat /etc/cwcdn.conf | grep tid | cut -d = -f 2)"
+            echo "  VERSION        : $(cat /etc/cwcdn.conf | grep version | cut -d = -f 2)"
+            echo "  API KEY        : $(cat /etc/box.json | json .server_api_key)"
+            echo "  ADMIN PASSWORD : $(cat /etc/box.json | json .admin.password)"
+            echo "  WEB ADMIN PORT : $(cat /etc/box.json | json .server_dashboard_web_port)"
+            echo "=========================================================="
+            echo
+            ;;
+        2)
+            echo 
+            echo "===========    NET CARD INFORMATION      ==============="
+            echo 
+            ifconfig
+            echo 
+            echo "===========    ROUTE INFORMASTION        ==============="
+            echo 
+            route
+            echo 
+            echo "===========    NAME SERVER INFOMATION    ==============="
+            echo 
+            cat /etc/resolv.conf | grep "^nameserver"
+            echo 
+            ;;
+        3)
+            ping -c 10 baidu.com
+            ;;
+        4)
+            echo "SET ETH0 to DHCP, DISABLE ETH1"
+            read -p "Input [yes] to confirm:[NO]" confirm
+            if [ "$confirm" == "yes" ]; then
+                echo "auto eth0" | sudo tee /etc/network/eth0
+                echo "iface eth0 inet dhcp" | sudo tee -a  /etc/network/eth0
+                echo "#eth1 is down" | sudo tee  /etc/network/eth1
+                sudo ifdown -a
+                sudo ifup -a
+            fi
+            ;;
+        5)
+            echo "SET ETH0 to 192.168.1.1, DISABLE ETH1"
+            read -p "Input [yes] to confirm:[NO]" confirm
+            if [ "$confirm" == "yes" ]; then
+                echo "auto eth0" | sudo tee /etc/network/eth0
+                echo "iface eth0 inet static" | sudo tee -a  /etc/network/eth0
+                echo "address 192.168.1.110
+netmask 255.255.255.0
+gateway 192.168.1.1" | sudo tee -a  /etc/network/eth0
+                echo "#eth1 is down" | sudo tee  /etc/network/eth1
+                sudo ifdown -a
+                sudo ifup -a
+            fi
+            ;;
+        7)
+            if [ ! -f /etc/box.json.default ] ; then
+                echo 
+                echo "ERROR!!! Missing /etc/box.json.default"
+                echo 
+            else
+                read -p "Input [yes] to confirm reset:[NO]" confirm
+                if [ "$confirm" == "yes" ]; then
+                    sudo cp /etc/box.json.default /etc/box.json
+                    code=$?
+                    if [ "$code" = "0" ]; then
+                        echo 
+                        echo "Restore to default succefull, please reboot to take effect."
+                        echo 
+                    else
+                        echo 
+                        echo "Restore fail.. code = $code"
+                    fi
+                fi
+            fi
+            ;;
+        9)
+            read -p "Input [yes] to confirm reboot:[NO]" confirm
+            if [ "$confirm" == "yes" ]; then
+                sudo reboot
+            fi
+            ;;
+        *)
+            ;;
+    esac
+    print_menu
+done

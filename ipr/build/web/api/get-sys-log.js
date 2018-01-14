@@ -1,0 +1,1 @@
+"use strict";module.exports=function(req,res){var exec=require("child_process").exec,child;child=exec("tail -n 100 /var/conwin/system.log",function(error,stdout,stderr){if(error!==null){console.log("exec error: "+error);res.status(500).end(error)}else{var result=stdout.split("\n");result.reverse();res.end(JSON.stringify(result))}})};

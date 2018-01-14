@@ -1,0 +1,33 @@
+{
+    "offline_time":60,
+    "online_offline_event_code":"333",
+    "server_dashboard_web_port":80,
+    "is_root":true,
+    "is_app_root":true,
+    "server_allow_autoreg":true,
+    "server_allow_user_modify":true,
+    "server_allow_api_timesync":true,
+    "server_allow_api_reboot":true,
+    "server_api_key":"1234",
+    "server_port_node_raw":"8008",
+    "server_port_node_websocket":null,
+    "server_port_node_web_api":"8000",
+    "server_port_fs":"8001",
+    "server_port_broadcast":"8002",
+    "server_file_upload_to":"",
+    "server_fs_root":"/root/ftp-root",
+    "children-to-connect" : {
+        "children-list" : {
+        }
+    },
+    "admin":{
+        "password":"admin"
+    },
+    "db":{
+        "type":"mssql",
+        "user":"sa",
+        "password":"1",
+        "server":"192.168.1.138",
+        "database":"Things"
+    }
+}

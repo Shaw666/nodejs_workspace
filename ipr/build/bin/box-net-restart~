@@ -1,0 +1,3 @@
+#!/bin/sh
+ifdown -a --force  && ifup -a --force
+resolvconf -u

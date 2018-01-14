@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  {{> header}}
+  <body>
+    {{> page_header}}
+    <div id="body-container">
+      <div id="body-content">
+        {{> nav}}
+        <section class="page container">
+          <form class="form-horizontal">
+            <div class="container">
+                <div class="row">
+                  <div id="net-settings-row" class="span7">
+                  <fieldset>
+                    <legend>网络全局参数设置</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">默认网卡(双网卡时设置)</label>
+                      <div class="controls">
+                        <select id="net-route-default-gateway-dev" name="net-route-default-gateway-dev" class="span2">
+                          <option value="eth0"> 网卡1 </option>
+                          <option value="eth1"> 网卡2 </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">默认网关(双网卡时设置)<br/>(需重启)</label>
+                      <div class="controls">
+                        <input id="net-route-default-gateway" name="net-route-default-gateway" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">域名服务器</label>
+                      <div class="controls">
+                        <input id="net-nameserver" name="net-nameserver" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+            </div>
+            <div class="row">
+              <div id="eth0-settings-row" class="span7">
+                  <fieldset>
+                    <legend>网卡1设置</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">已启用</label>
+                      <div class="controls">
+                        <select id="net-eth0-active" name="net-eth0-active" class="span2" value="false" disabled="true">
+                          <option value="false"> 停用 </option>
+                          <option value="true"> 启用 </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址获取方式 </label>
+                      <div class="controls">
+                        <select id="net-eth0-mode" class="span2">
+                          <option value="dhcp">   自动获取     </option>
+                          <option value="static"> 手动设置 </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址 </label>
+                      <div class="controls">
+                        <input id="net-eth0-ip" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网络掩码</label>
+                      <div class="controls">
+                        <input id="net-eth0-mask" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网关</label>
+                      <div class="controls">
+                        <input id="net-eth0-gateway" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div id="stat-eth0" class="span7">
+                  <fieldset>
+                    <legend>网卡1当前状态</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">是否已启用 </label>
+                      <div class="controls">
+                        <input id="stat-eth0-active" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网线已连接 </label>
+                      <div class="controls">
+                        <input id="stat-eth0-running" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址获取方式 </label>
+                      <div class="controls">
+                        <input id="stat-eth0-mode" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址 </label>
+                      <div class="controls">
+                        <input id="stat-eth0-ip" name="net-eth0-ip" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网络掩码</label>
+                      <div class="controls">
+                        <input id="stat-eth0-mask" name="net-eth0-mask" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网关</label>
+                      <div class="controls">
+                        <input id="stat-eth0-gateway" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">MAC地址</label>
+                      <div class="controls">
+                        <input id="stat-eth0-mac" name="net-eth0-mac" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">已接收数据</label>
+                      <div class="controls">
+                        <input id="stat-eth0-rx" name="net-eth0-rx" class="span2" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">已发送数据</label>
+                      <div class="controls">
+                        <input id="stat-eth0-tx" name="net-eth0-tx" class="span2" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+              <div class="row">
+                <div id="eth1-settings-row" class="span7">
+                  <fieldset>
+                    <legend>网卡2设置</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">已启用</label>
+                      <div class="controls">
+                        <select id="net-eth1-active" name="net-eth1-active" class="span2" value="false">
+                          <option value="false"> 停用 </option>
+                          <option value="true"> 启用 </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址获取方式 </label>
+                      <div class="controls">
+                        <select id="net-eth1-mode" class="span2">
+                          <option value="dhcp">   自动获取     </option>
+                          <option value="static"> 手动设置 </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址 </label>
+                      <div class="controls">
+                        <input id="net-eth1-ip" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网络掩码</label>
+                      <div class="controls">
+                        <input id="net-eth1-mask" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网关</label>
+                      <div class="controls">
+                        <input id="net-eth1-gateway" class="span4" value="" autocomplete="false"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div id="stat-eth1" class="span7">
+                  <fieldset>
+                    <legend>网卡2当前状态</legend><br/>
+                    <div class="control-group ">
+                      <label class="control-label">是否已启用 </label>
+                      <div class="controls">
+                        <input id="stat-eth1-active" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网线已连接 </label>
+                      <div class="controls">
+                        <input id="stat-eth1-running" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址获取方式 </label>
+                      <div class="controls">
+                        <input id="stat-eth1-mode" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">IP地址 </label>
+                      <div class="controls">
+                        <input id="stat-eth1-ip" name="net-eth1-ip" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网络掩码</label>
+                      <div class="controls">
+                        <input id="stat-eth1-mask" name="net-eth1-mask" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">网关</label>
+                      <div class="controls">
+                        <input id="stat-eth1-gateway" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">MAC地址</label>
+                      <div class="controls">
+                        <input id="stat-eth1-mac" name="net-eth1-mac" class="span4" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group ">
+                      <label class="control-label">已接收数据</label>
+                      <div class="controls">
+                        <input id="stat-eth1-rx" name="net-eth1-rx" class="span2" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">已发送数据</label>
+                      <div class="controls">
+                        <input id="stat-eth1-tx" name="net-eth1-tx" class="span2" value="" autocomplete="false" readonly="readonly"/>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+	
+      </div>
+    </div>
+
+    <footer class="application-footer">
+      <div class="container">
+        <p> <img src="images/conwin.png"/></P>
+        <div class="disclaimer">
+          <p>All right reserved.</p>
+          <p>Copyright © conwin 1993-2015</p>
+        </div>
+      </div>
+    </footer>
+    <script type="text/javascript">
+      $(function(){
+          var server_data = {};
+          function on_exit(e) {
+              var e = e || window.event;
+              // For IE and Firefox prior to version 4
+              if (e) {
+                  e.returnValue = '数据已修改';
+              }
+              // For Safari
+              return '数据已修改';
+          };
+          function on_data_changed() {
+              window.onbeforeunload = on_exit;
+          };
+          function is_valid_ip(ip) {
+              if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) { return false; };
+              var arr = ip.split(".");
+              for (var i = 0; i < arr.length; i++) {
+                  if (parseInt(arr[i]) > 255) { return false; };
+              }
+              return true;
+          }
+          function validate_data(net) {
+              var err = [];
+              if (!is_valid_ip(net.ip)) { err.push("IP地址格式错误"); }
+              if (!is_valid_ip(net.gw)) { err.push("网关地址格式错误"); }
+              if (!is_valid_ip(net.mask)) { err.push("网络掩码格式错误"); }
+              var dns = net.dns.split(",");
+              for (var i = 0; i < dns.length; i++) {
+                  if (!is_valid_ip(dns[i])) { err.push("dns: " + dns[i] + "格式错误"); };
+              }
+              return err;
+          };
+          function on_net_mode_change(mode, dev) {
+              on_data_changed();
+              if (!server_data[dev]) {
+                  server_data[dev] = {};
+              }
+              if (mode === "static") {
+                  $("#net-" + dev + "-ip").val(server_data[dev].ip).attr("readonly", false).attr("disabled", null);
+                  $("#net-" + dev + "-mask").val(server_data[dev].mask).attr("readonly", false).attr("disabled", null);
+                  $("#net-" + dev + "-gateway").val(server_data[dev].gw).attr("readonly", false).attr("disabled", null);
+              } else if (mode === "dhcp") {
+                  server_data[dev].ip   = $("#net-" + dev + "-ip").val()
+                  server_data[dev].mask = $("#net-" + dev + "-mask").val();
+                  server_data[dev].gw   = $("#net-" + dev + "-gateway").val();
+                  $("#net-" + dev + "-ip").val("自动获取").attr("readonly", true).attr("disabled", null);
+                  $("#net-" + dev + "-mask").val("自动获取").attr("readonly", true).attr("disabled", null);
+                  $("#net-" + dev + "-gateway").val("自动获取").attr("readonly", true).attr("disabled", null);
+              }
+          }
+          $("#net-eth0-mode").change(function () {
+              var mode = $(this).val();
+              on_net_mode_change(mode, "eth0");
+          });
+          $("#net-eth1-mode").change(function () {
+              var mode = $(this).val();
+              on_net_mode_change(mode, "eth1");
+          });
+          $("#submit-confirm-button").click(function () {
+              /*
+                {
+                "net-route-default-gateway"     : "192.168.88.2",
+                "net-route-default-gateway-dev" : "eth0",
+                "net-eth0-active"               : "true",
+                "net-eth0-mode"                 : "static",
+                "net-eth0-gateway"              : "192.168.88.2",
+                "net-eth0-ip"                   : "192.168.88.139",
+                "net-eth0-mask"                 : "255.255.255.0",
+                "net-eth1-active"               : "true",
+                "net-eth1-mode"                 : "static",
+                "net-eth1-gateway"              : "192.168.88.2",
+                "net-eth1-ip"                   : "192.168.1.10",
+                "net-eth1-mask"                 : "255.255.255.0",
+                "net-nameserver"                : ["8.8.8.8", "114.114.114.114"]
+                }
+               */
+              var net = {};
+              net["net-route-default-gateway"     ] = $("#net-route-default-gateway"     ).val();
+              net["net-route-default-gateway-dev" ] = $("#net-route-default-gateway-dev" ).val();
+              net["net-eth0-active"               ] = $("#net-eth0-active"               ).val();
+              net["net-eth0-mode"                 ] = $("#net-eth0-mode"                 ).val();
+              if (net["net-eth0-mode"] == "static") {
+                  net["net-eth0-gateway"              ] = $("#net-eth0-gateway"              ).val();
+                  net["net-eth0-ip"                   ] = $("#net-eth0-ip"                   ).val();
+                  net["net-eth0-mask"                 ] = $("#net-eth0-mask"                 ).val();
+              } else {
+                  net["net-eth0-gateway"              ] = server_data.eth0.gw;
+                  net["net-eth0-ip"                   ] = server_data.eth0.ip;
+                  net["net-eth0-mask"                 ] = server_data.eth0.mask;
+              }
+              net["net-eth1-active"               ] = $("#net-eth1-active"               ).val();
+              net["net-eth1-mode"                 ] = $("#net-eth1-mode"                 ).val();
+              if (net["net-eth1-mode"] == "static") {
+                  net["net-eth1-gateway"              ] = $("#net-eth1-gateway"              ).val();
+                  net["net-eth1-ip"                   ] = $("#net-eth1-ip"                   ).val();
+                  net["net-eth1-mask"                 ] = $("#net-eth1-mask"                 ).val();
+              } else {
+                  net["net-eth1-gateway"              ] = server_data.eth1.gw;
+                  net["net-eth1-ip"                   ] = server_data.eth1.ip;
+                  net["net-eth1-mask"                 ] = server_data.eth1.mask;
+              }
+              net["net-nameserver"                ] = $("#net-nameserver"                ).val();
+
+              var err = [];
+              // err = validate_data(net);
+              if (err.length > 0) {
+                  alert("数据错误 : \n" + err.join("\n"));
+                  return false;
+              }
+              var s = JSON.stringify(net);
+              if (!confirm("确认保存?")) { return false; };
+              $.getJSON("/box-net-set?data=" + s)
+                  .done(function (data) {
+                      if (data.result == "OK") {
+                          alert("配置保存成功.");
+                          window.onbeforeunload = null;
+                      } else {
+                          alert("配置保存失败:" + JSON.stringify(data));
+                          return false;
+                      }
+                  })
+                  .fail(function(textStatus, jqXHR, error ) {
+                      alert("数据保存失败, 请重新保存.");
+                  });
+              return true;
+          });
+          function update_net_settings() {
+              var active_cnt = 0;
+              for (var i = 0; i < 2; i++) {
+                  var prefix = "#net-eth" + i + "-";
+                  var value;
+                  var active = $(prefix + "active").attr("value");
+                  if (active === "true") {
+                      active_cnt++;
+                      var mode = $(prefix + "mode").attr("value");
+                      if (mode === "dhcp") {
+                          value = "true";
+                      } else {
+                          value = null;
+                      };
+                      $(prefix + "mode").attr("disabled", null);
+                  } else {
+                      value = "true";
+                      $(prefix + "mode").attr("disabled", "true");
+                  }
+                  ["ip", "mask", "gateway"].forEach(function (field) {
+                      $(prefix + field).attr("disabled", value);
+                  });
+              }
+              if (active_cnt === 1) {
+                  $("#net-route-default-gateway-dev").attr("disabled", "true");
+                  $("#net-route-default-gateway").attr("disabled", "true");
+              } else {
+                  $("#net-route-default-gateway-dev").attr("disabled", null);
+                  $("#net-route-default-gateway").attr("disabled", null);
+              }
+          }
+
+          $.getJSON("/box-net-get", function (json) {
+              if (json["net-if-cnt"] === 1) {
+                  $("#net-eth1-active").html("<option value=false>未安装</option");
+                  $("#net-eth1-active").attr("disabled", true);
+                  $("#net-eth1-dhcp").attr("disabled", true);
+              }
+              var active_eth_cnt = 0
+              var field;
+              for (field in json) {
+                  if (json.hasOwnProperty(field)) {
+                      var value = json[field];
+                      $("#" + field).attr("value", value);
+                  }
+              }
+
+              server_data = {
+                  eth0: {},
+                  eth1: {}
+              };
+              server_data.eth0.gw   = json["net-eth0-gateway"];
+              server_data.eth0.ip   = json["net-eth0-ip"];
+              server_data.eth0.mask = json["net-eth0-mask"];
+
+              server_data.eth1.gw   = json["net-eth1-gateway"];
+              server_data.eth1.ip   = json["net-eth1-ip"];
+              server_data.eth1.mask = json["net-eth1-mask"];
+
+              if (active_eth_cnt === 1) {
+                  $("#net-eth0-gateway").attr("value", json["net-route-default-gateway"]);
+              }
+              $("#net-eth0-dhcp").on('change', update_net_settings);
+              $("#net-eth1-dhcp").on('change', update_net_settings);
+              $("#net-eth0-active").on('change', update_net_settings);
+              $("#net-eth1-active").on('change', update_net_settings);
+              update_net_settings();
+              
+
+          });
+          function update_net_stat() {
+              $.getJSON("/box-net-stat")
+                  .done(function (data) {
+                      var mode_name = {
+                          "dhcp"   : "自动获取",
+                          "static" : "手动设置"
+                      }
+                      $("#stat-eth0-mode").val(mode_name[data.mode]);
+                      var field, value;
+                      for (field in data) {
+                          if (data.hasOwnProperty(field)) {
+                              value = data[field];
+                              if (typeof value === "boolean") {
+                                  if (value) {
+                                      value = "是";
+                                  } else {
+                                      value = "否";
+                                  }
+                              }
+                              $("#" + field).val(value);
+                          }
+                      }
+                      setTimeout(update_net_stat, 5000);
+                  })
+                  .fail(function(textStatus, jqXHR, error ) {
+                      setTimeout(update_net_stat, 5000);
+                  });
+          };
+          update_net_stat();
+
+      });
+    </script>
+    
+  </body>
+</html>

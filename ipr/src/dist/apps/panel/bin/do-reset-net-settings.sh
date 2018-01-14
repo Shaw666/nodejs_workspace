@@ -1,0 +1,1 @@
+/home/gxy/src/ipr/src/panel/do-reset-net-settings.sh

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4c SYSTEM "">
+
+<log4c version="1.2.1">
+
+  <config>
+	<bufsize>0</bufsize>
+	<debug level="2"/>
+	<nocleanup>0</nocleanup>
+	<reread>1</reread>
+  </config>
+
+  <category name="root" priority="notice"/>
+  <category name="gateway" priority="error" appender="myrollingfileappender" />
+
+  <!--sizewin表示达到最大值后新建日志文件  值由maxsize设定，单位Bytes     maxnum为最大文件数目-->  
+  <rollingpolicy name="myrollingpolicy" type="sizewin" maxsize="102400000" maxnum="1" />
+
+  <appender name="myrollingfileappender" type="rollingfile" logdir="../../../var/gateway" prefix="gateway" layout="dated" rollingpolicy="myrollingpolicy" />
+  
+  <appender name="stdout" type="stream" layout="basic"/>
+  <appender name="stderr" type="stream" layout="dated"/>
+  <appender name="syslog" type="syslog" layout="basic"/>
+
+  <layout name="basic" type="basic"/>
+  <layout name="dated" type="dated"/>
+
+</log4c>

@@ -1,0 +1,1 @@
+/home/gxy/src/ipr/src/panel/do-clear-event-log.sh

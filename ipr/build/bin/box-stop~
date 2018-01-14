@@ -1,0 +1,5 @@
+!#/bin/bash
+for cmd in 'dashboard' 'box' 'fs'; do
+    ps -ef | grep "$cmd" | grep -v "grep" | awk '{print $2}' | sudo xargs kill
+done
+

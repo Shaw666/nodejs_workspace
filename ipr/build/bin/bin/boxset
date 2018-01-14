@@ -1,0 +1,216 @@
+#!/bin/bash
+echo $1 > /var/log/boxset.log
+echo "start netset"
+param=$1
+echo "====$1===="
+param=${param//\-/\_}
+param=${param//\:\"on\"/\:\"true\"}
+param=${param//\:\"off\"/\:\"false\"}
+param=${param//\:\"是\"/\:\"true\"}
+param=${param//\:\"否\"/\:\"false\"}
+echo $param | json -q .*/=
+eval $(echo $param | json -q  .*/- )
+echo "action=$action"
+[ ! "$action" = "CONFIRM" ] && exit 0
+
+eval $(netinfo | json -q .*/-old_ | sed '{/.*=/{s/-/_/g}}')
+
+NEED_REBOOT=0
+
+if_eth0_changed() {
+    if [ "$net_eth0_dhcp" = "dhcp" ]; then
+        return 1
+    fi
+    if [ "$net_active_cnt" = "1" ]; then
+        [ ! "$old_net_route_default_gateway" = "$net_eth0_gateway" ] && echo "eth0 gateway changed" && NEED_REBOOT=1
+    else
+        echo  "$old_net_eth0_gateway   $net_eth0_gateway"
+        [ ! "$old_net_eth0_gateway"              = "$net_eth0_gateway"              ] && echo "eth0 gateway changed" && NEED_REBOOT=1
+        [ ! "$old_net_route_default_gateway"     = "$net_route_default_gateway"     ] && echo "default gateway changed" && NEED_REBOOT=1
+        [ ! "$old_net_route_default_gateway_dev" = "$net_route_default_gateway_dev" ] && echo "default gateway dev changed" && NEED_REBOOT=1
+    fi
+    return 1
+}
+if_eth1_changed() {
+    if [ "$net_eth1_dhcp" = "dhcp" ]; then
+        return 1
+    fi
+    [ ! "$old_net_eth1_gateway" = "$net_eth1_gateway" ] && NEED_REBOOT=1 && return 1
+    return 1
+}
+if_route_changed() {
+    return 0
+}
+if_nameserver_changed() {
+    old_net_nameserver=${old_net_nameserver//[\[\]\" ]/}
+    net_nameserver=${net_nameserver//[\[\]\" ]/}
+    [ ! "$old_net_nameserver" = "$net_nameserver" ] && return 1
+    return 0
+}
+if_db_changed() {
+    echo "if db changed"
+    eval $(cat /etc/box.json | json .db.*/=old_db_)
+    [ ! "$old_db_type"     = "$db_type"        ] && return 1
+    [ ! "$old_db_user"     = "$db_username"    ] && return 1
+    [ ! "$old_db_password" = "$db_password"    ] && return 1
+    [ ! "$old_db_server"   = "$db_server_ip"   ] && return 1
+    [ ! "$old_db_port"     = "$db_server_port" ] && return 1
+    [ ! "$old_db_database" = "$db_database"    ] && return 1
+    return 0
+}
+if_password_changed() {
+    echo "if password changed"
+    return 0
+}
+if_server_changed() {
+    echo "if server changed"
+    return 0
+}
+
+
+do_set_ethx() {
+    echo "do_set_ethx : $1"
+    iface=$1
+    if_${iface}_changed
+    ret=$?
+    echo "ret = $ret"
+    [ "$ret" = "0" ]  && echo "${iface} settings not changed" && return
+    eval "net_active=\$net_${iface}_active"
+    eval "net_dhcp=\$net_${iface}_dhcp"
+    eval "net_ip=\$net_${iface}_ip"
+    eval "net_mask=\$net_${iface}_mask"
+    eval "net_gateway=\$net_${iface}_gateway"
+
+    echo "net_active=$net_active"
+
+    echo "${iface} settings changed"
+    if [ ! "$net_active" = "true" ]; then
+        ifconfig ${iface} down
+        echo "#${iface} is down" > /etc/network/${iface}
+        return 0
+    fi
+    echo "#${iface} is up" > /etc/network/${iface}
+    echo "auto ${iface}" >> /etc/network/${iface}
+    if [ "$net_dhcp" = "dhcp" ]; then
+        echo "dhcp"
+        echo "iface ${iface} inet dhcp"   >> /etc/network/${iface}
+    else
+        echo "iface ${iface} inet static" >> /etc/network/${iface}
+        echo "address $net_ip"            >> /etc/network/${iface}
+        echo "netmask $net_mask"          >> /etc/network/${iface}
+        if [[ $net_active_cnt -eq 1 ]]; then
+            echo "gateway $net_gateway" >> /etc/network/${iface}
+        else
+            echo "gateway $net_gateway"       >> /etc/network/${iface}
+            if [ "$net_route_default_gateway_dev" = "${iface}" ]; then
+                sed -i '/post-up route add default/d' /etc/network/${iface}
+                echo "post-up route add default via $net_route_default_gateway dev ${iface}" >> /etc/network/${iface}
+            fi
+        fi
+        ifconfig ${iface} $net_ip  netmask $net_mask
+    fi
+    ifconfig ${iface} up
+}
+
+do_set_eth0() {
+    echo "do_set_eth0"
+    if_eth0_changed
+    ret=$?
+    [ "$ret" = "0" ]  && echo "eth0 not changed" && return
+    do_set_ethx eth0
+}
+do_set_eth1() {
+    echo "do_set_eth1"
+    if_eth1_changed
+    ret=$?
+    [ "$ret" = "0" ]  && echo "eth1 not changed" && return
+    do_set_ethx eth1
+}
+do_set_nameserver() {
+    echo "do_set_nameserver"
+    if_nameserver_changed
+    ret=$?
+    [ "$ret" = "0" ]  && echo "nameserver not changed" && return
+    echo "$net_nameserver" \
+        | sed 's/,/\n/g' \
+        | awk '{print "nameserver  " $0}' \
+        > /etc/resolvconf/resolv.conf.d/base
+    resolvconf -u
+}
+do_set_db() {
+    echo "do_set_db"
+    if_db_changed
+    ret=$?
+    [ "$ret" = "0" ]  && echo "db settings not changed" && return 0
+    echo "=====set db with json"
+    json -f /etc/box.json -I 4 \
+        .db.type=\"$db_type\" \
+        .db.user=\"$db_username\" \
+        .db.password=\"$db_password\" \
+        .db.server=\"$db_server_ip\" \
+        .db.port=$db_server_port \
+        .db.database=\"$db_database\" | sponge /etc/box.json
+    return 0
+}
+do_set_password() {
+    echo "do_set_password"
+    [ ! "$password_new1" = "$password_new2" ] && echo "new password mismatch" && return 1
+    eval $(json -f /etc/box.json .admin.password/password)
+    [ ! "$password" = "$password_old" ] && echo "old password not match" && return 1
+    json -f /etc/box.json -I 4 .admin.password=\"$password_new1\" | sponge /etc/box.json
+    return 0
+}
+do_set_server() {
+    echo "do_set_server"
+    if_server_changed
+    ret=$?
+    # [ "$ret" = "0" ]  && echo "server settings not changed" && return 0
+    # server_allow_autoreg='true'
+    # server_allow_user_modify='true'
+    # server_allow_api_timesync='true'
+    # server_allow_api_reboot='true'
+    # server_api_key=''
+    echo "=====set server settings  with json"
+    json -f /etc/box.json -I 4 \
+        .message_limit_cnt=$message_limit_cnt \
+        .offline_time=$offline_time \
+        .online_offline_event_code=\"$online_offline_event_code\" \
+        .server_dashboard_web_port=$server_dashboard_web_port \
+        .server_allow_autoreg=${server_allow_autoreg=false} \
+        .server_allow_user_modify=${server_allow_user_modify=false} \
+        .server_allow_api_timesync=${server_allow_api_timesync=false} \
+        .server_allow_api_reboot=${server_allow_api_reboot=false} \
+        .server_api_key=\"$server_api_key\" | sponge /etc/box.json
+    
+    return 0
+}
+
+net_active_cnt=0
+[ "$net_eth0_active" = "true" ] && net_active_cnt=$(expr $net_active_cnt + 1)
+[ "$net_eth1_active" = "true" ] && net_active_cnt=$(expr $net_active_cnt + 1)
+eth_cnt=$(netinfo | json .net-dev-cnt)
+echo "NEED_REBOOT=$NEED_REBOOT"
+do_set_eth0
+echo "NEED_REBOOT=$NEED_REBOOT  eth_cnt = $eth_cnt"
+if [[ $eth_cnt -gt 1 ]]; then
+    do_set_eth1
+fi
+# route del default
+# route add default gw $net_route_default_gateway $net_route_default_gateway_dev
+do_set_db
+echo "NEED_REBOOT=$NEED_REBOOT"
+do_set_password
+echo "NEED_REBOOT=$NEED_REBOOT"
+do_set_server
+echo "NEED_REBOOT=$NEED_REBOOT"
+do_set_nameserver
+echo "NEED_REBOOT=$NEED_REBOOT"
+service resolvconf restart
+echo "NEED_REBOOT=$NEED_REBOOT"
+ifdown -a
+echo "ifup before"
+kill $(pidof dhclient3)
+ifup -a &
+echo "ifup after"
+[ "$NEED_REBOOT" = "1" ] && echo "Need reboot... $NEED_REBOOT" && sleep 3 && echo reboot
+exit 0

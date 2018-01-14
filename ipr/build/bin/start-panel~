@@ -1,0 +1,6 @@
+#!/bin/bash
+cd /home/gxy/src/ipr/src/ipr
+while true; do
+    node ipr
+    sleep 1
+done

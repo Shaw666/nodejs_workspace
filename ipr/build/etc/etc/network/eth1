@@ -1,0 +1,3 @@
+#eth1 is up
+auto eth1
+iface eth1 inet dhcp

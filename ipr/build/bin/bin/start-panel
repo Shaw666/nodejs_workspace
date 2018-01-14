@@ -1,0 +1,6 @@
+#!/bin/bash
+cd /home/gxy/src/ipr/src/panel
+while true; do
+    bash panel.sh
+    sleep 1
+done

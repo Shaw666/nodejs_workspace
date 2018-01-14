@@ -1,0 +1,15 @@
+#!/bin/sh
+tid=$(cat /etc/cwcdn.conf | grep "tid" | awk -F = '{print $2}')
+brand=$(cat /etc/cwcdn.conf | grep "brand" | awk -F = '{print $2}')
+model=$(cat /etc/cwcdn.conf | grep "model" | awk -F = '{print $2}')
+ver=$(cat /etc/cwcdn.conf | grep "version" | awk -F = '{print $2}')
+sn=$(cat /etc/cwcdn.conf | grep "sn=" | awk -F = '{print $2}')
+ip1=$(ifconfig eth0 | grep "inet addr:" | awk -F ':' '{split($2, ip, " "); print ip[1]}')
+ip2=$(ifconfig eth1 | grep "inet addr:" | awk -F ':' '{split($2, ip, " "); print ip[1]}')
+mac1=$(ifconfig eth0 | grep "HWaddr" | awk '{print $5}')
+mac2=$(ifconfig eth1 | grep "HWaddr" | awk '{print $5}')
+
+time=$(date '+%Y-%m-%d %T')
+
+
+echo "time=$time;tid=$tid;brand=$brand;model=$model;ver=$ver;ip1=$ip1;mac1=$mac1;ip2=$ip2;mac2=$mac2"

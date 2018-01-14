@@ -1,0 +1,112 @@
+
+#!/bin/bash
+#!/bin/bash
+# {
+#   "stat-if-cnt"                   : 2,
+#   "stat-route-default-gateway"     : "192.168.88.2",
+#   "stat-route-default-gateway-dev" : "eth0",
+#   "stat-nameserver"                : ["114.114.114.114", "192.168.1.1", "192.168.88.2"]
+
+#   "stat-eth0-active"               : true,
+#   "stat-eth0-dhcp"                 : "static",
+#   "stat-eth0-gateway"              : "192.168.88.2",
+#   "stat-eth0-mac"                  : "00:50:56:27:ba:a8",
+#   "stat-eth0-ip"                   : "192.168.88.139",
+#   "stat-eth0-mask"                 : "255.255.255.0",
+#   "stat-eth0-running"              : true,
+#   "stat-eth0-rx"                   : "2.7 GB",
+#   "stat-eth0-tx"                   : "1.1 GB",
+
+#   "stat-eth1-active"               : true,
+#   "stat-eth1-dhcp"                 : "static",
+#   "stat-eth1-gateway"              : "192.168.88.2",
+#   "stat-eth1-mac"                  : "00:50:56:27:f6:4f",
+#   "stat-eth1-ip"                   : "192.168.1.10",
+#   "stat-eth1-mask"                 : "255.255.255.0",
+#   "stat-eth1-running"              : false,
+#   "stat-eth1-rx"                   : "229.0 KB",
+#   "stat-eth1-tx"                   : "4.5 KB",
+# }
+# [e]  --- eth0      Link encap:Ethernet  HWaddr 00:e0:4c:12:c3:ba
+# [i]  --- inet addr:192.168.1.161  Bcast:192.168.1.255  Mask:255.255.255.0
+# [i]  --- inet6 addr: fe80::2e0:4cff:fe12:c3ba/64 Scope:Link
+# [U]  --- UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+# [R]  --- RX packets:578646 errors:0 dropped:0 overruns:0 frame:0
+# [T]  --- TX packets:269284 errors:0 dropped:0 overruns:0 carrier:0
+# [c]  --- collisions:0 txqueuelen:1000
+# [R]  --- RX bytes:670853719 (670.8 MB)  TX bytes:22505583 (22.5 MB)
+# []  --- 
+
+iface=""
+set ifaces=""
+cnt=0
+echo "{"
+echo "  \"stat-if-cnt\" : $(ifconfig -a | grep "eth" | wc -l),"
+
+#gateway
+gw=$(route -n | awk '{ if ($1 == "0.0.0.0" ) {printf $2", "}}')
+gw=${gw%%", "}
+defaultgw=$gw
+echo "  \"stat-route-default-gateway\" : \"$gw\","
+gw=$(route -n | awk '{ if ($1 == "0.0.0.0") {printf $8", "}}')
+gw=${gw%%", "}
+echo "  \"stat-route-default-gateway-dev\" : \"$gw\","
+
+ifconfig -a |
+{
+    while read line
+    do
+	[ "$line" = "" ] && iface=""  && continue
+	if [ "${line:0:3}" = "eth" ]; then
+	    iface=$(echo $line | awk '{print $1}')
+	    # echo "$iface=1"
+	    cnt=$(expr $cnt + 1)
+	    echo "  \"stat-$iface-mode\" : \"$(cat /etc/network/$iface | grep '^iface' | awk '{print $4}')\","
+	    gw=$(route -n | awk -v eth=$iface '{ if ($1 != "0.0.0.0" && $8 == eth) {print $2}}')
+        [ "$gw" = "0.0.0.0" ] && gw="$defaultgw"
+	    echo "  \"stat-$iface-gateway\" : \"$gw\","
+	fi
+	[ "$iface" = "" ] && continue
+	# line[1] = eth0      Link encap:Ethernet  HWaddr 00:e0:4c:12:c3:ba
+	if [[ $line == eth* ]]; then  # get mac
+	    echo "  \"stat-$iface-mac\" : \"$(echo $line | awk '{print $5}')\","
+	fi
+	# line[2] = inet addr:192.168.1.161  Bcast:192.168.1.255  Mask:255.255.255.0
+	if [[ $line == inet\ addr* ]]; then  # get ipaddr & mask
+	    echo "  \"stat-$iface-ip\" : \"$(echo $line | awk -F [\ :] '{print $3}')\","
+	    echo "  \"stat-$iface-mask\" : \"$(echo $line | awk -F [\ :] '{print $7}')\","
+	fi
+	# line[4] = UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+	if [[ $line == *MTU* ]]; then  # get net card status
+	    if [[ $line == *UP* ]]; then
+		echo "  \"stat-$iface-active\" : true,"
+	    else
+		echo "  \"stat-$iface-active\" : false,"
+	    fi
+	    if [[ $line == *RUNNING* ]]; then
+		echo "  \"stat-$iface-running\" : true,"
+	    else
+		echo "  \"stat-$iface-running\" : false,"
+	    fi
+
+	fi
+	# line[8] = RX bytes:671153689 (671.1 MB)  TX bytes:22894253 (22.8 MB)
+	if [[ $line == RX\ bytes* ]]; then  # get tx/rx data counter
+	    echo "  \"stat-$iface-rx\" : \"$(echo $line | awk -F [\(\)] '{print $2}')\","
+	    echo "  \"stat-$iface-tx\" : \"$(echo $line | awk -F [\(\)] '{print $4}')\","
+	fi
+    done
+    # echo "INTERFACE=$(echo $ifaces)"
+}
+
+
+#nameserver
+ns=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
+list=""
+for  ip in $ns;
+do
+    list="\"$ip\" $list"
+done
+list=$(echo $list)
+echo "  \"stat-nameserver\" : [${list//\ /, }]"
+echo "}"
